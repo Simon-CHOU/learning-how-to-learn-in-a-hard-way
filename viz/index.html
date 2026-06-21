@@ -26,10 +26,10 @@
   }
   .header p { color:var(--text-dim); font-size:0.9rem; margin-top:4px; }
 
-  .main { display:flex; gap:20px; max-width:1600px; margin:0 auto; padding:0 16px 40px; }
+  .main { display:flex; gap:20px; max-width:1600px; margin:0 auto; padding:0 16px 40px; align-items:flex-start; }
+  .story-panel { flex:0 0 370px; display:flex; flex-direction:column; max-height:calc(100vh - 140px); position:sticky; top:12px; }
   .diagram-panel { flex:1 1 50%; min-width:0; }
   .info-panel { flex:0 0 340px; display:flex; flex-direction:column; gap:12px; }
-  .story-panel { flex:0 0 370px; display:flex; flex-direction:column; }
 
   .diagram-wrap {
     background: var(--surface); border:1px solid var(--border);
@@ -133,76 +133,91 @@
   .legend-item { display:flex; align-items:center; gap:6px; font-size:0.76rem; }
   .legend-dot { width:11px; height:11px; border-radius:3px; flex-shrink:0; }
 
-  /* story line */
+  /* story line — leftmost feed column */
   .story-wrap {
     background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; padding:0; overflow:hidden; flex:1; display:flex; flex-direction:column;
+    border-radius:16px; overflow:hidden; display:flex; flex-direction:column;
+    max-height:calc(100vh - 140px);
   }
   .story-header {
-    padding:18px 18px 0;
+    padding:14px 16px 10px; flex-shrink:0;
     display:flex; align-items:center; gap:10px;
+    border-bottom:1px solid var(--border);
   }
   .story-header .avatar {
-    width:40px; height:40px; border-radius:50%;
+    width:36px; height:36px; border-radius:50%;
     background: linear-gradient(135deg, var(--solving), var(--consolidating));
     display:flex; align-items:center; justify-content:center;
-    font-size:1.2rem; flex-shrink:0;
+    font-size:1.1rem; flex-shrink:0;
   }
-  .story-header .title { font-size:0.9rem; font-weight:600; }
-  .story-header .subtitle { font-size:0.7rem; color:var(--text-dim); }
-  .story-body {
-    flex:1; overflow-y:auto; padding:16px 18px 18px;
-    display:flex; flex-direction:column; gap:10px;
+  .story-header .title { font-size:0.85rem; font-weight:600; }
+  .story-header .subtitle { font-size:0.68rem; color:var(--text-dim); }
+  .story-feed {
+    flex:1; overflow-y:auto; padding:12px 14px 14px;
+    display:flex; flex-direction:column; gap:8px;
+    scroll-behavior:smooth;
   }
+  .story-feed::-webkit-scrollbar { width:5px; }
+  .story-feed::-webkit-scrollbar-track { background:transparent; }
+  .story-feed::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
   .ooda-card {
-    background:var(--bg); border:1px solid var(--border); border-radius:12px;
-    padding:14px; transition: all 0.4s ease;
+    background:var(--bg); border:1px solid var(--border); border-radius:10px;
+    padding:12px; transition: all 0.35s ease;
+    animation: feedIn 0.4s ease-out;
+  }
+  @keyframes feedIn {
+    from { opacity:0; transform:translateY(12px); }
+    to { opacity:1; transform:translateY(0); }
   }
   .ooda-card.current {
     border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(56,189,248,0.15);
+    box-shadow: 0 0 16px rgba(56,189,248,0.12);
   }
+  .ooda-card.past { opacity:0.55; }
   .ooda-step {
-    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+    display:flex; align-items:center; gap:7px; margin-bottom:8px;
   }
   .ooda-step .dot {
-    width:10px; height:10px; border-radius:50%; flex-shrink:0;
+    width:8px; height:8px; border-radius:50%; flex-shrink:0;
   }
-  .ooda-step .label { font-size:0.75rem; font-weight:600; }
+  .ooda-step .label { font-size:0.7rem; font-weight:600; color:var(--text-dim); }
   .ooda-step .state-tag {
-    font-size:0.65rem; padding:2px 8px; border-radius:10px;
+    font-size:0.62rem; padding:2px 7px; border-radius:8px;
     font-weight:600; margin-left:auto;
   }
   .ooda-phase {
-    display:grid; grid-template-columns: 32px 1fr; gap:4px 8px;
-    font-size:0.73rem; line-height:1.55; margin-top:2px;
+    display:grid; grid-template-columns: 26px 1fr; gap:2px 6px;
+    font-size:0.7rem; line-height:1.5;
   }
-  .ooda-phase .icon { font-size:0.85rem; text-align:center; }
+  .ooda-phase .icon { font-size:0.8rem; text-align:center; }
   .ooda-phase .text { color:var(--text-dim); }
   .ooda-phase .text strong { color:var(--text); }
   .story-empty {
-    color:var(--text-dim); text-align:center; padding:40px 20px;
-    font-size:0.85rem; line-height:1.7;
+    color:var(--text-dim); text-align:center; padding:30px 16px;
+    font-size:0.82rem; line-height:1.7;
   }
   .story-summary {
-    margin-top:8px; padding:12px; border-radius:10px;
-    background: rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25);
-    font-size:0.75rem; line-height:1.6; color:var(--success);
+    flex-shrink:0; margin:0 12px 12px; padding:10px 12px; border-radius:8px;
+    background: rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2);
+    font-size:0.7rem; line-height:1.55; color:var(--success);
     display:none;
   }
   .story-summary.show { display:block; }
 
   @media (max-width:1400px) {
-    .story-panel { flex:0 0 320px; }
+    .story-panel { flex:0 0 310px; }
   }
   @media (max-width:1200px) {
     .main { flex-wrap:wrap; }
-    .story-panel { flex:1 1 100%; max-height:420px; }
+    .story-panel { flex:1 1 100%; max-height:380px; position:static; }
+    .story-wrap { max-height:380px; }
   }
   @media (max-width:900px) {
     .main { flex-direction:column; }
     .info-panel { flex:auto; }
-    .story-panel { flex:auto; max-height:none; }
+    .story-panel { flex:auto; max-height:360px; position:static; }
+    .story-wrap { max-height:360px; }
     .diagram-wrap { position:static; }
   }
 </style>
@@ -215,6 +230,27 @@
 </div>
 
 <div class="main">
+
+  <!-- ====== STORY LINE PANEL (feed) ====== -->
+  <div class="story-panel">
+    <div class="story-wrap">
+      <div class="story-header">
+        <div class="avatar">🧑</div>
+        <div>
+          <div class="title">Simon 的学习心流</div>
+          <div class="subtitle">OODA 循环 · 从不会到掌握</div>
+        </div>
+      </div>
+      <div class="story-feed" id="story-feed">
+        <div class="story-empty">
+          点击 <strong>前进</strong> 开始跟随 Simon<br>经历完整的认知成长之旅。
+        </div>
+      </div>
+      <div class="story-summary" id="story-summary">
+        <strong>心流完成。</strong> Simon 从零开始，经过三轮 ExpandTree 强化、一次 Solve→Consolidate，最终 StrongEnough 达成——所有节点 mastery ≥ 80，treeK2P 连接完备。这就是 TLC 验证的 67 状态空间中的一条典型学习轨迹。
+      </div>
+    </div>
+  </div>
 
   <!-- ====== STATE DIAGRAM ====== -->
   <div class="diagram-panel">
@@ -384,27 +420,6 @@
     </div>
   </div>
 
-  <!-- ====== STORY LINE PANEL ====== -->
-  <div class="story-panel">
-    <div class="story-wrap">
-      <div class="story-header">
-        <div class="avatar">🧑</div>
-        <div>
-          <div class="title">Simon 的学习心流</div>
-          <div class="subtitle">OODA 循环 · 从不会到掌握</div>
-        </div>
-      </div>
-      <div class="story-body" id="story-body">
-        <div class="story-empty">
-          点击 <strong>前进</strong> 开始跟随 Simon<br>
-          经历完整的认知成长之旅。
-        </div>
-      </div>
-      <div class="story-summary" id="story-summary">
-        <strong>心流完成。</strong> Simon 从零开始，经过三轮 ExpandTree 强化、一次 Solve→Consolidate，最终 StrongEnough 达成——所有节点 mastery ≥ 80，treeK2P 连接完备。这就是 TLC 验证的 67 状态空间中的一条典型学习轨迹。
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -690,14 +705,17 @@ const oodaColor = {
 };
 
 function renderStoryCard(t, i) {
-  const body = document.getElementById('story-body');
+  const feed = document.getElementById('story-feed');
   // remove empty placeholder
-  const empty = body.querySelector('.story-empty');
+  const empty = feed.querySelector('.story-empty');
   if (empty) empty.remove();
-  // remove previous .current
-  body.querySelectorAll('.ooda-card.current').forEach(c => c.classList.remove('current'));
-  // check if card already exists for this step
-  let card = body.querySelector('.ooda-card[data-step="'+i+'"]');
+  // mark all existing cards as past
+  feed.querySelectorAll('.ooda-card').forEach(c => {
+    c.classList.remove('current');
+    c.classList.add('past');
+  });
+  // check if card already exists for this step (step back / jump)
+  let card = feed.querySelector('.ooda-card[data-step="'+i+'"]');
   if (!card) {
     card = document.createElement('div');
     card.className = 'ooda-card';
@@ -712,15 +730,19 @@ function renderStoryCard(t, i) {
       `<div class="ooda-phase"><span class="icon">🧭</span><span class="text"><strong>判断</strong> ${t.ooda.R}</span></div>` +
       `<div class="ooda-phase"><span class="icon">🎯</span><span class="text"><strong>决策</strong> ${t.ooda.D}</span></div>` +
       `<div class="ooda-phase"><span class="icon">⚡</span><span class="text"><strong>行动</strong> ${t.ooda.A}</span></div>`;
-    body.appendChild(card);
+    feed.appendChild(card);
+  } else {
+    // re-activate existing card (during step-back / jump)
+    card.classList.remove('past');
   }
   card.classList.add('current');
-  card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  // scroll feed so new card is at bottom
+  feed.scrollTop = feed.scrollHeight;
 }
 
 function clearStory() {
-  const body = document.getElementById('story-body');
-  body.innerHTML = '<div class="story-empty">点击 <strong>前进</strong> 开始跟随 Simon<br>经历完整的认知成长之旅。</div>';
+  const feed = document.getElementById('story-feed');
+  feed.innerHTML = '<div class="story-empty">点击 <strong>前进</strong> 开始跟随 Simon<br>经历完整的认知成长之旅。</div>';
   document.getElementById('story-summary').classList.remove('show');
 }
 
@@ -729,7 +751,7 @@ function step() { if (stepIdx < trace.length-1) applyStep(stepIdx+1); }
 function stepBack() {
   if (stepIdx > 0) {
     // remove OODA card for current step
-    const body = document.getElementById('story-body');
+    const body = document.getElementById('story-feed');
     const card = body.querySelector('.ooda-card[data-step="'+stepIdx+'"]');
     if (card) card.remove();
     // if no cards left, restore empty placeholder

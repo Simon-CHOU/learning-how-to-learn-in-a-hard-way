@@ -1,0 +1,13 @@
+# TLA+ tools binary
+tla2tools.jar
+
+# TLC model checking artifacts
+states/
+*.bin
+*_TTrace_*.tla
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

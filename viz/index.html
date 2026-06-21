@@ -26,9 +26,10 @@
   }
   .header p { color:var(--text-dim); font-size:0.9rem; margin-top:4px; }
 
-  .main { display:flex; gap:24px; max-width:1340px; margin:0 auto; padding:0 20px 40px; }
-  .diagram-panel { flex:1 1 60%; min-width:0; }
-  .info-panel { flex:0 0 400px; display:flex; flex-direction:column; gap:14px; }
+  .main { display:flex; gap:20px; max-width:1600px; margin:0 auto; padding:0 16px 40px; }
+  .diagram-panel { flex:1 1 50%; min-width:0; }
+  .info-panel { flex:0 0 340px; display:flex; flex-direction:column; gap:12px; }
+  .story-panel { flex:0 0 370px; display:flex; flex-direction:column; }
 
   .diagram-wrap {
     background: var(--surface); border:1px solid var(--border);
@@ -132,9 +133,76 @@
   .legend-item { display:flex; align-items:center; gap:6px; font-size:0.76rem; }
   .legend-dot { width:11px; height:11px; border-radius:3px; flex-shrink:0; }
 
+  /* story line */
+  .story-wrap {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:0; overflow:hidden; flex:1; display:flex; flex-direction:column;
+  }
+  .story-header {
+    padding:18px 18px 0;
+    display:flex; align-items:center; gap:10px;
+  }
+  .story-header .avatar {
+    width:40px; height:40px; border-radius:50%;
+    background: linear-gradient(135deg, var(--solving), var(--consolidating));
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; flex-shrink:0;
+  }
+  .story-header .title { font-size:0.9rem; font-weight:600; }
+  .story-header .subtitle { font-size:0.7rem; color:var(--text-dim); }
+  .story-body {
+    flex:1; overflow-y:auto; padding:16px 18px 18px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .ooda-card {
+    background:var(--bg); border:1px solid var(--border); border-radius:12px;
+    padding:14px; transition: all 0.4s ease;
+  }
+  .ooda-card.current {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(56,189,248,0.15);
+  }
+  .ooda-step {
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .ooda-step .dot {
+    width:10px; height:10px; border-radius:50%; flex-shrink:0;
+  }
+  .ooda-step .label { font-size:0.75rem; font-weight:600; }
+  .ooda-step .state-tag {
+    font-size:0.65rem; padding:2px 8px; border-radius:10px;
+    font-weight:600; margin-left:auto;
+  }
+  .ooda-phase {
+    display:grid; grid-template-columns: 32px 1fr; gap:4px 8px;
+    font-size:0.73rem; line-height:1.55; margin-top:2px;
+  }
+  .ooda-phase .icon { font-size:0.85rem; text-align:center; }
+  .ooda-phase .text { color:var(--text-dim); }
+  .ooda-phase .text strong { color:var(--text); }
+  .story-empty {
+    color:var(--text-dim); text-align:center; padding:40px 20px;
+    font-size:0.85rem; line-height:1.7;
+  }
+  .story-summary {
+    margin-top:8px; padding:12px; border-radius:10px;
+    background: rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25);
+    font-size:0.75rem; line-height:1.6; color:var(--success);
+    display:none;
+  }
+  .story-summary.show { display:block; }
+
+  @media (max-width:1400px) {
+    .story-panel { flex:0 0 320px; }
+  }
+  @media (max-width:1200px) {
+    .main { flex-wrap:wrap; }
+    .story-panel { flex:1 1 100%; max-height:420px; }
+  }
   @media (max-width:900px) {
     .main { flex-direction:column; }
     .info-panel { flex:auto; }
+    .story-panel { flex:auto; max-height:none; }
     .diagram-wrap { position:static; }
   }
 </style>
@@ -315,45 +383,135 @@
       </div>
     </div>
   </div>
+
+  <!-- ====== STORY LINE PANEL ====== -->
+  <div class="story-panel">
+    <div class="story-wrap">
+      <div class="story-header">
+        <div class="avatar">🧑</div>
+        <div>
+          <div class="title">Simon 的学习心流</div>
+          <div class="subtitle">OODA 循环 · 从不会到掌握</div>
+        </div>
+      </div>
+      <div class="story-body" id="story-body">
+        <div class="story-empty">
+          点击 <strong>前进</strong> 开始跟随 Simon<br>
+          经历完整的认知成长之旅。
+        </div>
+      </div>
+      <div class="story-summary" id="story-summary">
+        <strong>心流完成。</strong> Simon 从零开始，经过三轮 ExpandTree 强化、一次 Solve→Consolidate，最终 StrongEnough 达成——所有节点 mastery ≥ 80，treeK2P 连接完备。这就是 TLC 验证的 67 状态空间中的一条典型学习轨迹。
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 // ── trace: 17-step path through the full cognitive cycle ──
 const trace = [
   { s:0, st:"Idle",          act:"Init",               k1:0,  k2:0,  p1:0,  e1:0,  lk1:"FALSE", lk2:"FALSE",
-    desc:"系统启动。<strong>Idle</strong> 状态，所有 mastery 为 0。treeK2P 矩阵全为 FALSE。" },
+    desc:"系统启动。<strong>Idle</strong> 状态，所有 mastery 为 0。treeK2P 矩阵全为 FALSE。",
+    ooda:{O:"Simon 坐在书桌前，看到一道矩阵乘法题目 Q1。题目看起来有点眼熟，但说不上来具体怎么做。",
+          R:"「这道题需要用到矩阵乘法的知识……我好像学过，但想不起来怎么用了。先看看它属于哪种题型。」",
+          D:"识别题目类型，尝试检索相关知识。",
+          A:"开始审题，进入 Retrieving 状态。"} },
   { s:1, st:"Retrieving",    act:"StartRetrieving",    k1:0,  k2:0,  p1:0,  e1:0,  lk1:"FALSE", lk2:"FALSE",
-    desc:"取出题目 Q1，进入 <strong>Retrieving</strong>。调用 GetRelatedNodes(Q1) → targetP=P1, relatedK={}, relatedE={E1}。" },
+    desc:"取出题目 Q1，进入 <strong>Retrieving</strong>。调用 GetRelatedNodes(Q1) → targetP=P1, relatedK={}, relatedE={E1}。",
+    ooda:{O:"Simon 仔细阅读题目，发现这是一道标准的矩阵乘法模式题（Pattern P1），题目暗示需要注意行列对齐这个易错点（E1）。",
+          R:"「这确实是矩阵乘法题。但我之前没有把相关知识点和这类题建立过映射——脑子里一片空白。」",
+          D:"尝试从记忆中提取关联知识点。",
+          A:"调用 GetRelatedNodes(Q1)，结果：targetP=P1, relatedK=∅, relatedE={E1}。"} },
   { s:2, st:"Expanding",     act:"RetrieveFail",       k1:0,  k2:0,  p1:0,  e1:0,  lk1:"FALSE", lk2:"FALSE",
-    desc:"<strong>检索失败</strong>！relatedK 为空——P1 尚无任何 Knowledge 连接。进入 Expanding 建立连接。" },
+    desc:"<strong>检索失败</strong>！relatedK 为空——P1 尚无任何 Knowledge 连接。进入 Expanding 建立连接。",
+    ooda:{O:"Simon 发现自己的记忆库中，K1（行列乘法规则）和 K2（向量内积原理）都还没有和矩阵乘法题型挂上钩。",
+          R:"「糟糕，我完全不知道这道题该用什么知识点来解。我学过矩阵基础，但从没把它们和这种题型对应起来。」",
+          D:"先建立知识连接——把 K1 和 K2 映射到 P1，构建认知网络的基础结构。",
+          A:"进入 Expanding 状态，触发 ExpandTree 的「建连接」分支。"} },
   { s:3, st:"Idle",          act:"ExpandTree",         k1:0,  k2:0,  p1:0,  e1:0,  lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>ExpandTree（建连接分支）</strong>：选取 K1、K2，建立到 P1 的映射。<br>┗ treeK2P[K1][P1] ← TRUE, treeK2P[K2][P1] ← TRUE" },
+    desc:"<strong>ExpandTree（建连接分支）</strong>：选取 K1、K2，建立到 P1 的映射。<br>┗ treeK2P[K1][P1] ← TRUE, treeK2P[K2][P1] ← TRUE",
+    ooda:{O:"Simon 翻开笔记，找到了行列乘法和向量内积两条基础知识。他把它们标注为「可用于矩阵乘法」。",
+          R:"「原来行列乘法和向量内积就是解矩阵乘法的核心知识！现在我知道该从哪里入手了，但每条知识的掌握度还是零。」",
+          D:"将 K1 和 K2 两条知识点正式链接到 P1 题型上。",
+          A:"treeK2P[K1][P1]←TRUE, treeK2P[K2][P1]←TRUE。连接建立完成，回到 Idle。"} },
   { s:4, st:"Retrieving",    act:"StartRetrieving",    k1:0,  k2:0,  p1:0,  e1:0,  lk1:"TRUE",  lk2:"TRUE",
-    desc:"重新 <strong>Retrieving</strong>。relatedK={K1,K2}，但 mastery 全部为 0。" },
+    desc:"重新 <strong>Retrieving</strong>。relatedK={K1,K2}，但 mastery 全部为 0。",
+    ooda:{O:"Simon 再次看这道题。这次他有方向了——K1 和 K2 已经连接上了。但他发现自己对这些知识的理解还很模糊。",
+          R:"「好，现在有关联了。但 K1=0, K2=0, E1=0——每条都只是听说过，远谈不上掌握。」",
+          D:"再次尝试检索，看看 mastery 是否达标。",
+          A:"GetRelatedNodes(Q1) → relatedK={K1,K2}, relatedE={E1}。但 mastery 全部 < 80。"} },
   { s:5, st:"Expanding",     act:"RetrieveFail",       k1:0,  k2:0,  p1:0,  e1:0,  lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>检索失败</strong>：K1、K2 已关联，但 mastery 均 < 80。进入 Expanding 强化弱节点。" },
+    desc:"<strong>检索失败</strong>：K1、K2 已关联，但 mastery 均 < 80。进入 Expanding 强化弱节点。",
+    ooda:{O:"Simon 意识到：连接是有了，但每个知识点的掌握度都是 0。就像知道要用什么工具，但还不会用这些工具。",
+          R:"「光有连接还不够，我需要真正理解行列乘法和向量内积。现在 K1=0, K2=0, E1=0，全是弱节点。」",
+          D:"集中精力强化所有弱节点——K1、K2、E1 都需要提升。",
+          A:"进入 Expanding，触发「强化弱节点」分支（weakK={K1,K2}, weakE={E1}）。"} },
   { s:6, st:"Idle",          act:"ExpandTree",         k1:30, k2:30, p1:0,  e1:30, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>ExpandTree（强化分支）</strong>：weakK={K1,K2}, weakE={E1}，各 mastery +30。<br>┗ K1: 0→30, K2: 0→30, E1: 0→30" },
+    desc:"<strong>ExpandTree（强化分支）</strong>：weakK={K1,K2}, weakE={E1}，各 mastery +30。<br>┗ K1: 0→30, K2: 0→30, E1: 0→30",
+    ooda:{O:"Simon 花了一下午认真学习了行列乘法的定义，演算了几个向量内积的例题，还特意关注了行列对齐这个常见错误。",
+          R:"「学了一遍，每个知识点大概掌握了三成。能看懂例题了，但让自己做还是会卡。」",
+          D:"完成本轮强化，回到 Idle 准备重新尝试。",
+          A:"K1: 0→30, K2: 0→30, E1: 0→30。整体 mastery 提升但离 80 仍有距离。"} },
   { s:7, st:"Retrieving",    act:"StartRetrieving",    k1:30, k2:30, p1:0,  e1:30, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>Retrieving</strong>：relatedK={K1,K2}，mastery=30 仍 < 80。" },
+    desc:"<strong>Retrieving</strong>：relatedK={K1,K2}，mastery=30 仍 < 80。",
+    ooda:{O:"Simon 再次面对矩阵乘法题。这次他的理解比之前好了不少，但内心还是不确定。",
+          R:"「K1=30, K2=30, E1=30——进步了，但离 80 的阈值还差得远。再试试看能不能通过。」",
+          D:"再次尝试检索，检查 mastery 是否达标。",
+          A:"GetRelatedNodes(Q1) → mastery 30 < 80。再次 RetrieveFail。"} },
   { s:8, st:"Expanding",     act:"RetrieveFail",       k1:30, k2:30, p1:0,  e1:30, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>检索失败</strong>：mastery 30 < 80。" },
+    desc:"<strong>检索失败</strong>：mastery 30 < 80。",
+    ooda:{O:"Simon 看到 mastery 只有 30，意识到还需要更多练习。「知道」和「会用」之间的差距比他想象的大。",
+          R:"「30 分远不够应付考试。我需要深入练习，把每个知识点练到条件反射的程度。」",
+          D:"继续第二轮强化，加深理解和熟练度。",
+          A:"进入 Expanding，再次触发强化（weakK={K1,K2}, weakE={E1}）。"} },
   { s:9, st:"Idle",          act:"ExpandTree",         k1:60, k2:60, p1:0,  e1:60, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>ExpandTree 强化</strong>：weakK={K1,K2}, weakE={E1}，mastery +30。<br>┗ K1: 30→60, K2: 30→60, E1: 30→60" },
+    desc:"<strong>ExpandTree 强化</strong>：weakK={K1,K2}, weakE={E1}，mastery +30。<br>┗ K1: 30→60, K2: 30→60, E1: 30→60",
+    ooda:{O:"Simon 做了 20 道练习题，反复在草稿纸上推演矩阵乘法的每一步，特别注意了之前忽略的行列对齐细节。",
+          R:"「现在每个知识点掌握了六成。能做对大部分练习了，但偶尔还会在易错点栽跟头。」",
+          D:"完成第二轮强化，继续逼近阈值。",
+          A:"K1: 30→60, K2: 30→60, E1: 30→60。再次回到 Idle。"} },
   { s:10, st:"Retrieving",   act:"StartRetrieving",    k1:60, k2:60, p1:0,  e1:60, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>Retrieving</strong>：mastery=60，距阈值 80 还差一步。" },
+    desc:"<strong>Retrieving</strong>：mastery=60，距阈值 80 还差一步。",
+    ooda:{O:"Simon 再次尝试。这次他明显感觉更自信了——公式在脑中清晰浮现，易错点也形成了警觉。",
+          R:"「60 分了，已经及格。但模型要求的是 80 分才能真正进入解题状态。再努力一把。」",
+          D:"第三次检索，检查是否达标。",
+          A:"GetRelatedNodes(Q1) → mastery 60 < 80。仍差 20 分。"} },
   { s:11, st:"Expanding",    act:"RetrieveFail",       k1:60, k2:60, p1:0,  e1:60, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>检索失败</strong>：mastery 60 < 80。<em>若无公平性约束，系统可在此无限 stuttering。</em>" },
+    desc:"<strong>检索失败</strong>：mastery 60 < 80。<em>若无公平性约束，系统可在此无限 stuttering。</em>",
+    ooda:{O:"Simon 感到有些沮丧。已经学了两轮，还是没达到 80。他想起很多同学就是在这个阶段放弃的——「差不多懂了」但就是过不了关。",
+          R:"「这是最关键的一步。60→80 是最难的 20 分，需要从『会做』提升到『精通』。很多人在这里 stuttering——永远在 60 分徘徊。」",
+          D:"咬牙再来一轮！系统的公平性保证：只要持续 enabled，ExpandTree 一定会发生。Simon 选择了坚持。",
+          A:"进入 Expanding，第三轮强化（weakK={K1,K2}, weakE={E1}）。"} },
   { s:12, st:"Idle",         act:"ExpandTree",         k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>ExpandTree 强化</strong>：K1、K2、E1 mastery +30 → 90 ≥ 80！<br>┗ 所有关联节点达标，下一次 RetrieveSuccess 将触发。" },
+    desc:"<strong>ExpandTree 强化</strong>：K1、K2、E1 mastery +30 → 90 ≥ 80！<br>┗ 所有关联节点达标，下一次 RetrieveSuccess 将触发。",
+    ooda:{O:"Simon 进行了最后一轮高强度练习——模拟考试环境限时做题，逐题复盘错误，直到每个步骤都烂熟于心。",
+          R:"「成了！K1=90, K2=90, E1=90——全部超过 80 的阈值。矩阵乘法这个题型，我真正掌握了！」",
+          D:"mastery 全部达标，准备正式答题。",
+          A:"K1: 60→90, K2: 60→90, E1: 60→90。突破阈值！StrongEnough 的前置条件满足。"} },
   { s:13, st:"Retrieving",   act:"StartRetrieving",    k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>Retrieving</strong>：relatedK={K1,K2}，全部 mastery ≥ 80。" },
+    desc:"<strong>Retrieving</strong>：relatedK={K1,K2}，全部 mastery ≥ 80。",
+    ooda:{O:"Simon 深吸一口气，最后一次审视题目。这次他的脑中清晰出现了所有需要的信息——行列乘法规则、内积计算、对齐注意点——一切都准备就绪。",
+          R:"「K1=90, K2=90, E1=90，全部达标。这一次检索一定会成功。」",
+          D:"自信地进入检索，验证 mastery 门槛。",
+          A:"GetRelatedNodes(Q1) → 全部 mastery ≥ 80。RetrieveSuccess 触发！"} },
   { s:14, st:"Solving",      act:"RetrieveSuccess",    k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>检索成功</strong>！所有节点达标，进入 Solving 解题。" },
+    desc:"<strong>检索成功</strong>！所有节点达标，进入 Solving 解题。",
+    ooda:{O:"Simon 的认知系统给出了绿灯——所有前置知识已就绪。他开始在草稿纸上一步步推演矩阵乘法。",
+          R:"「终于可以正式答题了！所有知识点都在手边，我知道每一步该怎么做，也知道哪里会出错。」",
+          D:"全力以赴解题——这是从『准备』到『实战』的跨越。",
+          A:"进入 Solving 状态，开始正式解答。"} },
   { s:15, st:"Consolidating",act:"SolveCorrectly",     k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>答对</strong>！进入 Consolidating 巩固。" },
+    desc:"<strong>答对</strong>！进入 Consolidating 巩固。",
+    ooda:{O:"Simon 完成最后一步计算，检查了行列是否对齐、每个元素是否正确。答案吻合！",
+          R:"「做对了！而且不只是碰运气——每一步我都很清楚为什么这么做。这就是掌握的感觉。」",
+          D:"答对后进入巩固阶段，将这次成功的经验固化。",
+          A:"SolveCorrectly 触发，进入 Consolidating。"} },
   { s:16, st:"Idle",         act:"Consolidate",        k1:100,k2:100,p1:10, e1:100,lk1:"TRUE",  lk2:"TRUE",
-    desc:"<strong>Consolidate 巩固</strong>：所有关联节点 mastery +10。<br>┗ K1: 90→100, K2: 90→100, P1: 0→10, E1: 90→100<br><strong>✅ StrongEnough 达成！系统持续处于掌握状态。</strong>" },
+    desc:"<strong>Consolidate 巩固</strong>：所有关联节点 mastery +10。<br>┗ K1: 90→100, K2: 90→100, P1: 0→10, E1: 90→100<br><strong>✅ StrongEnough 达成！系统持续处于掌握状态。</strong>",
+    ooda:{O:"Simon 放下笔，看着完整的解题过程。K1 和 K2 满分掌握，连易错点 E1 都 100 分。题型模式 P1 也从 0 到 10——这个题型他已经彻底攻克了。",
+          R:"「从完全不会到满分掌握。三轮 ExpandTree 强化、一次成功解题、一次巩固——这就是认知成长的完整心流。StrongEnough 永远成立了。」",
+          D:"将这次学习经验内化为永久能力。下次遇到同类题型，直接 RetrieveSuccess。",
+          A:"Consolidate 完成。K1: 90→100, K2: 90→100, P1: 0→10, E1: 90→100。StrongEnough = TRUE。学习闭环完成。"} },
 ];
 
 // state fingerprint: simple deterministic hash mapped into [1,67]
@@ -487,6 +645,16 @@ function applyStep(i) {
     log.scrollTop = log.scrollHeight;
   }
 
+  // story line (OODA)
+  if (t.ooda) {
+    renderStoryCard(t, i);
+  }
+  if (i === trace.length-1) {
+    document.getElementById('story-summary').classList.add('show');
+  } else {
+    document.getElementById('story-summary').classList.remove('show');
+  }
+
   // buttons
   document.getElementById('btn-back').disabled = (i === 0);
   const done = i >= trace.length-1;
@@ -516,10 +684,62 @@ function transitionId(from, to) {
 
 function stripHtml(s) { return s.replace(/<[^>]*>/g, ''); }
 
+const oodaColor = {
+  "Idle":"#a78bfa","Retrieving":"#fbbf24","Solving":"#38bdf8",
+  "Consolidating":"#34d399","Expanding":"#f87171"
+};
+
+function renderStoryCard(t, i) {
+  const body = document.getElementById('story-body');
+  // remove empty placeholder
+  const empty = body.querySelector('.story-empty');
+  if (empty) empty.remove();
+  // remove previous .current
+  body.querySelectorAll('.ooda-card.current').forEach(c => c.classList.remove('current'));
+  // check if card already exists for this step
+  let card = body.querySelector('.ooda-card[data-step="'+i+'"]');
+  if (!card) {
+    card = document.createElement('div');
+    card.className = 'ooda-card';
+    card.setAttribute('data-step', i);
+    card.innerHTML =
+      `<div class="ooda-step">` +
+        `<span class="dot" style="background:${oodaColor[t.st]};"></span>` +
+        `<span class="label">Step ${i}</span>` +
+        `<span class="state-tag" style="background:${oodaColor[t.st]}20;color:${oodaColor[t.st]};">${t.act}</span>` +
+      `</div>` +
+      `<div class="ooda-phase"><span class="icon">👁</span><span class="text"><strong>观察</strong> ${t.ooda.O}</span></div>` +
+      `<div class="ooda-phase"><span class="icon">🧭</span><span class="text"><strong>判断</strong> ${t.ooda.R}</span></div>` +
+      `<div class="ooda-phase"><span class="icon">🎯</span><span class="text"><strong>决策</strong> ${t.ooda.D}</span></div>` +
+      `<div class="ooda-phase"><span class="icon">⚡</span><span class="text"><strong>行动</strong> ${t.ooda.A}</span></div>`;
+    body.appendChild(card);
+  }
+  card.classList.add('current');
+  card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function clearStory() {
+  const body = document.getElementById('story-body');
+  body.innerHTML = '<div class="story-empty">点击 <strong>前进</strong> 开始跟随 Simon<br>经历完整的认知成长之旅。</div>';
+  document.getElementById('story-summary').classList.remove('show');
+}
+
 function step() { if (stepIdx < trace.length-1) applyStep(stepIdx+1); }
 
 function stepBack() {
   if (stepIdx > 0) {
+    // remove OODA card for current step
+    const body = document.getElementById('story-body');
+    const card = body.querySelector('.ooda-card[data-step="'+stepIdx+'"]');
+    if (card) card.remove();
+    // if no cards left, restore empty placeholder
+    if (!body.querySelector('.ooda-card')) {
+      body.innerHTML = '<div class="story-empty">点击 <strong>前进</strong> 开始跟随 Simon<br>经历完整的认知成长之旅。</div>';
+    }
+    // remove current highlight from previous step's card (will be re-added by applyStep)
+    body.querySelectorAll('.ooda-card.current').forEach(c => c.classList.remove('current'));
+    document.getElementById('story-summary').classList.remove('show');
+
     const log = document.getElementById('log');
     log.innerHTML = '<div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪</div>';
     for (let j=1; j<stepIdx; j++) {
@@ -545,6 +765,7 @@ function reset() {
   stopAuto();
   const log = document.getElementById('log');
   log.innerHTML = '<div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪</div>';
+  clearStory();
   applyStep(0);
   document.querySelectorAll('.transition-path').forEach(p => {
     p.classList.remove('highlight');

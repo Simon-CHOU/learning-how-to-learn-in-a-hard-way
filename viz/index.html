@@ -6,206 +6,136 @@
 <title>MindTree 认知架构 — 状态迁移图</title>
 <style>
   :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --border: #334155;
-    --text: #e2e8f0;
-    --text-dim: #94a3b8;
-    --accent: #38bdf8;
-    --idle: #a78bfa;
-    --retrieving: #fbbf24;
-    --solving: #38bdf8;
-    --consolidating: #34d399;
-    --expanding: #f87171;
-    --knowledge: #60a5fa;
-    --pattern: #c084fc;
-    --error: #fb7185;
-    --success: #34d399;
-    --fail: #f87171;
+    --bg: #0f172a; --surface: #1e293b; --border: #334155;
+    --text: #e2e8f0; --text-dim: #94a3b8; --accent: #38bdf8;
+    --idle: #a78bfa; --retrieving: #fbbf24; --solving: #38bdf8;
+    --consolidating: #34d399; --expanding: #f87171;
+    --knowledge: #60a5fa; --pattern: #c084fc; --error: #fb7185;
+    --success: #34d399; --fail: #f87171;
   }
-
   * { margin:0; padding:0; box-sizing:border-box; }
-
   body {
-    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
+    font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden;
   }
-
-  /* header */
-  .header {
-    text-align: center;
-    padding: 28px 20px 12px;
-  }
+  .header { text-align:center; padding:28px 20px 12px; }
   .header h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-size:1.6rem; font-weight:700;
     background: linear-gradient(135deg, var(--accent), var(--idle));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-  .header p {
-    color: var(--text-dim);
-    font-size: 0.9rem;
-    margin-top: 4px;
-  }
+  .header p { color:var(--text-dim); font-size:0.9rem; margin-top:4px; }
 
-  /* main layout */
-  .main {
-    display: flex;
-    gap: 24px;
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 0 20px 40px;
-  }
-  .diagram-panel {
-    flex: 1 1 60%;
-    min-width: 0;
-  }
-  .info-panel {
-    flex: 0 0 380px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+  .main { display:flex; gap:24px; max-width:1340px; margin:0 auto; padding:0 20px 40px; }
+  .diagram-panel { flex:1 1 60%; min-width:0; }
+  .info-panel { flex:0 0 400px; display:flex; flex-direction:column; gap:14px; }
 
-  /* state diagram SVG */
   .diagram-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 12px;
+    background: var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:10px; position:sticky; top:12px;
   }
-  .diagram-wrap svg {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+  .diagram-wrap svg { width:100%; height:auto; display:block; }
 
-  /* state nodes */
-  .state-node {
-    cursor: pointer;
-    transition: transform 0.2s;
+  /* larger arrowheads */
+  .transition-path { transition: stroke 0.5s, stroke-width 0.5s; }
+  .transition-path.highlight {
+    stroke-width:3.5; filter: drop-shadow(0 0 6px currentColor);
   }
+  .edge-label { pointer-events:none; user-select:none; }
+
+  .state-node { cursor:pointer; transition: transform 0.2s; }
   .state-node:hover { transform: scale(1.05); }
   .state-node rect { transition: all 0.35s ease; }
   .state-node.active rect {
-    filter: drop-shadow(0 0 14px var(--glow-color));
-    stroke-width: 3;
+    filter: drop-shadow(0 0 16px var(--glow-color)); stroke-width:3.5;
   }
-  .state-node text { pointer-events: none; user-select: none; }
+  .state-node text { pointer-events:none; user-select:none; }
 
-  /* transition arrows */
-  .transition-path {
-    transition: stroke 0.5s, stroke-width 0.5s;
-  }
-  .transition-path.highlight {
-    stroke-width: 3;
-    filter: drop-shadow(0 0 6px currentColor);
-  }
-
-  /* panels */
   .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
+    background: var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px;
   }
   .panel-title {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    margin-bottom: 12px;
+    font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--text-dim); margin-bottom:12px;
   }
 
-  /* controls */
-  .controls {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; }
   .btn {
-    padding: 9px 18px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-family: inherit;
-    transition: all 0.2s;
+    padding:9px 18px; border:1px solid var(--border); border-radius:10px;
+    background:var(--surface); color:var(--text); cursor:pointer;
+    font-size:0.85rem; font-family:inherit; transition:all 0.2s;
   }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn:active { transform: scale(0.97); }
-  .btn.primary { background: var(--accent); color: #0f172a; border-color: var(--accent); font-weight: 600; }
-  .btn.primary:hover { opacity: 0.85; }
-  .btn.danger { border-color: var(--fail); }
-  .btn.danger:hover { color: var(--fail); }
+  .btn:hover { border-color:var(--accent); color:var(--accent); }
+  .btn:active { transform:scale(0.97); }
+  .btn.primary { background:var(--accent); color:#0f172a; border-color:var(--accent); font-weight:600; }
+  .btn.primary:hover { opacity:0.85; }
+  .btn.danger { border-color:var(--fail); }
+  .btn.danger:hover { color:var(--fail); }
 
-  .speed-label { font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
-  .speed-label input { accent-color: var(--accent); }
+  .speed-row { margin-top:10px; display:flex; align-items:center; gap:12px; }
+  .speed-label { font-size:0.75rem; color:var(--text-dim); display:flex; align-items:center; gap:6px; }
+  .speed-label input { accent-color:var(--accent); }
+  .step-counter { font-size:0.75rem; color:var(--text-dim); margin-left:auto; }
 
   /* mastery bars */
-  .mastery-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .mastery-label {
-    width: 80px; font-size: 0.82rem; flex-shrink: 0;
-  }
+  .mastery-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .mastery-label { width:80px; font-size:0.82rem; flex-shrink:0; }
   .mastery-bar-wrap {
-    flex:1; height:18px; background: var(--bg); border-radius: 9px; overflow: hidden; position: relative;
+    flex:1; height:18px; background:var(--bg); border-radius:9px;
+    overflow:hidden; position:relative;
   }
   .mastery-bar {
-    height: 100%; border-radius: 9px; transition: width 0.6s ease;
-    display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
-    font-size: 0.7rem; font-weight: 600; color: #0f172a; white-space: nowrap;
+    height:100%; border-radius:9px; transition:width 0.6s ease;
+    display:flex; align-items:center; justify-content:flex-end; padding-right:8px;
+    font-size:0.7rem; font-weight:600; color:#0f172a; white-space:nowrap;
   }
-  .mastery-bar.knowledge { background: var(--knowledge); }
-  .mastery-bar.pattern { background: var(--pattern); }
-  .mastery-bar.error { background: var(--error); }
+  .mastery-bar.knowledge { background:var(--knowledge); }
+  .mastery-bar.pattern { background:var(--pattern); }
+  .mastery-bar.error { background:var(--error); }
   .mastery-threshold {
-    position: absolute; top:0; left: 80%; width:2px; height:100%;
-    background: var(--text-dim); opacity: 0.5;
+    position:absolute; top:0; left:80%; width:2px; height:100%;
+    background:var(--text-dim); opacity:0.5;
   }
   .mastery-threshold::after {
-    content: "80"; position: absolute; top: -16px; left: -8px;
-    font-size: 0.6rem; color: var(--text-dim);
+    content:"80"; position:absolute; top:-16px; left:-8px; font-size:0.6rem; color:var(--text-dim);
   }
+  .link-row { font-size:0.7rem; color:var(--text-dim); margin-top:6px; display:flex; align-items:center; gap:4px; }
 
-  /* log */
-  .log {
-    max-height: 220px;
-    overflow-y: auto;
-    font-size: 0.78rem;
-    font-family: 'Cascadia Code', 'SF Mono', 'Consolas', monospace;
-    line-height: 1.7;
+  /* state watcher */
+  .state-watcher {
+    font-family: 'Cascadia Code','SF Mono','Consolas',monospace;
+    font-size:0.72rem; line-height:1.65; color:var(--text-dim);
+    background:var(--bg); border-radius:10px; padding:14px;
+    overflow-x:auto; white-space:pre;
   }
-  .log-entry { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .log-entry .ts { color: var(--text-dim); margin-right: 8px; }
-  .log-entry .act { font-weight: 600; }
-  .log-entry.succ .act { color: var(--success); }
-  .log-entry.fail .act { color: var(--fail); }
-  .log-entry.idle .act { color: var(--idle); }
+  .state-watcher .kw { color:#c084fc; }
+  .state-watcher .str { color:#34d399; }
+  .state-watcher .num { color:#60a5fa; }
+  .state-watcher .bool { color:#fbbf24; }
+  .state-watcher .st { color:#38bdf8; }
+  .state-watcher .eq { color:#64748b; }
+  .state-watcher .header-line { color:#94a3b8; }
 
-  /* legend */
-  .legend { display: flex; flex-wrap: wrap; gap: 12px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .desc { font-size:0.82rem; line-height:1.6; color:var(--text-dim); min-height:48px; transition:all 0.3s; }
+  .desc strong { color:var(--text); }
 
-  /* description */
-  .desc { font-size: 0.82rem; line-height: 1.6; color: var(--text-dim); min-height: 60px; transition: all 0.3s; }
-  .desc strong { color: var(--text); }
+  .log { max-height:160px; overflow-y:auto; font-size:0.76rem; font-family:'Cascadia Code','SF Mono','Consolas',monospace; line-height:1.7; }
+  .log-entry { padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .log-entry .ts { color:var(--text-dim); margin-right:8px; }
+  .log-entry .act { font-weight:600; }
+  .log-entry.succ .act { color:var(--success); }
+  .log-entry.fail .act { color:var(--fail); }
+  .log-entry.idle .act { color:var(--idle); }
 
-  @media (max-width: 900px) {
-    .main { flex-direction: column; }
-    .info-panel { flex: auto; }
+  .legend { display:flex; flex-wrap:wrap; gap:10px; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:0.76rem; }
+  .legend-dot { width:11px; height:11px; border-radius:3px; flex-shrink:0; }
+
+  @media (max-width:900px) {
+    .main { flex-direction:column; }
+    .info-panel { flex:auto; }
+    .diagram-wrap { position:static; }
   }
 </style>
 </head>
@@ -213,112 +143,111 @@
 
 <div class="header">
   <h1>MindTree 认知架构 — 状态迁移图</h1>
-  <p>基于 TLA+ 形式化验证的五状态认知循环 · 67 状态 · 全空间穷举</p>
+  <p>基于 TLA+ 形式化验证的五状态认知循环 · 67 状态全空间穷举 · TLC Verified</p>
 </div>
 
 <div class="main">
-  <!-- State diagram -->
+
+  <!-- ====== STATE DIAGRAM ====== -->
   <div class="diagram-panel">
     <div class="diagram-wrap">
-      <svg id="diagram" viewBox="0 0 720 520" xmlns="http://www.w3.org/2000/svg">
+      <svg id="diagram" viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          <!-- larger arrowheads for clear direction -->
+          <marker id="arr-def" markerWidth="14" markerHeight="10" refX="14" refY="5" orient="auto">
+            <polygon points="0 0, 14 5, 0 10" fill="#64748b" />
           </marker>
-          <marker id="arrow-hl" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" />
+          <marker id="arr-hl" markerWidth="14" markerHeight="10" refX="14" refY="5" orient="auto">
+            <polygon points="0 0, 14 5, 0 10" fill="#38bdf8" />
+          </marker>
+          <marker id="arr-succ" markerWidth="14" markerHeight="10" refX="14" refY="5" orient="auto">
+            <polygon points="0 0, 14 5, 0 10" fill="#34d399" />
+          </marker>
+          <marker id="arr-fail" markerWidth="14" markerHeight="10" refX="14" refY="5" orient="auto">
+            <polygon points="0 0, 14 5, 0 10" fill="#f87171" />
           </marker>
           <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-          <filter id="glow-strong">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feGaussianBlur stdDeviation="4" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
 
-        <!-- Transition arrows (drawn first, behind nodes) -->
+        <!-- ── Transition edges (behind nodes) ── -->
 
-        <!-- Idle -> Retrieving -->
-        <path id="tr-idle-retr" d="M360,78 C360,110 360,130 360,158" fill="none"
-              stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" class="transition-path" />
-        <text x="370" y="120" fill="#94a3b8" font-size="11">StartRetrieving</text>
+        <!-- 1. Idle → Retrieving (down) -->
+        <path id="tr-idle-retr" d="M360,75 L360,150"
+              fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr-def)" class="transition-path" />
+        <text x="372" y="120" fill="#94a3b8" font-size="11" class="edge-label">StartRetrieving</text>
 
-        <!-- Retrieving -> Solving (success path, right) -->
-        <path id="tr-retr-solv" d="M410,195 C470,195 500,195 520,215 C540,235 540,260 525,280"
-              fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" class="transition-path" />
-        <text x="470" y="188" fill="#34d399" font-size="10">RetrieveSuccess</text>
-        <text x="470" y="200" fill="#94a3b8" font-size="9">(全部达标)</text>
+        <!-- 2. Retrieving → Solving (right, success) -->
+        <path id="tr-retr-solv" d="M420,190 C480,190 540,200 585,260"
+              fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr-def)" class="transition-path" />
+        <text x="470" y="182" fill="#34d399" font-size="10" class="edge-label">RetrieveSuccess</text>
 
-        <!-- Retrieving -> Expanding (fail path, left) -->
-        <path id="tr-retr-expa" d="M308,195 C250,195 220,195 200,215 C180,235 180,260 195,280"
-              fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" class="transition-path" />
-        <text x="120" y="188" fill="#f87171" font-size="10">RetrieveFail</text>
-        <text x="120" y="200" fill="#94a3b8" font-size="9">(有弱节点)</text>
+        <!-- 3. Retrieving → Expanding (left, fail) -->
+        <path id="tr-retr-expa" d="M300,190 C240,190 180,200 135,260"
+              fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr-def)" class="transition-path" />
+        <text x="170" y="182" fill="#f87171" font-size="10" class="edge-label">RetrieveFail</text>
 
-        <!-- Solving -> Consolidating -->
-        <path id="tr-solv-cons" d="M560,310 C560,370 560,390 530,408"
-              fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" class="transition-path" />
-        <text x="510" y="370" fill="#34d399" font-size="10">SolveCorrectly</text>
+        <!-- 4. Solving → Consolidating (down) -->
+        <path id="tr-solv-cons" d="M640,320 L640,390"
+              fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr-def)" class="transition-path" />
+        <text x="652" y="360" fill="#34d399" font-size="10" class="edge-label">SolveCorrectly</text>
 
-        <!-- Solving -> Expanding (incorrect) -->
-        <path id="tr-solv-expa2" d="M500,295 C400,290 340,295 280,310"
-              fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,3"
-              marker-end="url(#arrow)" class="transition-path" />
-        <text x="340" y="280" fill="#f87171" font-size="9">SolveIncorrectly</text>
+        <!-- 5. Solving → Expanding (horizontal dash, incorrect) -->
+        <path id="tr-solv-expa2" d="M590,290 C500,290 340,292 250,295"
+              fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="7,4"
+              marker-end="url(#arr-def)" class="transition-path" />
+        <text x="380" y="278" fill="#f87171" font-size="10" class="edge-label">SolveIncorrectly</text>
 
-        <!-- Expanding -> Idle (return) -->
-        <path id="tr-expa-idle" d="M240,360 C200,310 180,220 240,100 C280,30 340,60 350,70"
-              fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" class="transition-path" />
-        <text x="100" y="210" fill="#94a3b8" font-size="10">ExpandTree</text>
+        <!-- 6. Expanding → Idle (left-side return) -->
+        <path id="tr-expa-idle" d="M120,270 C60,230 50,140 120,80 C180,28 260,40 300,48"
+              fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr-def)" class="transition-path" />
+        <text x="40" y="180" fill="#94a3b8" font-size="10" class="edge-label">ExpandTree</text>
 
-        <!-- Consolidating -> Idle (return) -->
-        <path id="tr-cons-idle" d="M480,430 C450,460 420,470 400,430 C390,400 380,200 370,100"
-              fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" class="transition-path" />
-        <text x="405" y="305" fill="#94a3b8" font-size="9">Consolidate</text>
+        <!-- 7. Consolidating → Idle (right-side return, avoids Retrieving) -->
+        <path id="tr-cons-idle" d="M670,420 C720,420 750,340 750,200 C750,80 580,50 415,50"
+              fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr-def)" class="transition-path" />
+        <text x="720" y="290" fill="#94a3b8" font-size="10" class="edge-label">Consolidate</text>
 
-        <!-- State nodes -->
+        <!-- ── State nodes ── -->
+
         <g class="state-node" id="node-idle" data-state="Idle" onclick="jumpTo('Idle')">
-          <rect x="310" y="20" width="100" height="50" rx="25" fill="#1e293b"
-                stroke="#a78bfa" stroke-width="2.5" />
+          <rect x="310" y="20" width="100" height="50" rx="25" fill="#1e293b" stroke="#a78bfa" stroke-width="2.5" />
           <text x="360" y="50" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="600">Idle</text>
         </g>
 
         <g class="state-node" id="node-retrieving" data-state="Retrieving" onclick="jumpTo('Retrieving')">
-          <rect x="310" y="160" width="100" height="50" rx="25" fill="#1e293b"
-                stroke="#fbbf24" stroke-width="2.5" />
-          <text x="360" y="190" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Retrieving</text>
+          <rect x="305" y="165" width="110" height="50" rx="25" fill="#1e293b" stroke="#fbbf24" stroke-width="2.5" />
+          <text x="360" y="195" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Retrieving</text>
         </g>
 
         <g class="state-node" id="node-solving" data-state="Solving" onclick="jumpTo('Solving')">
-          <rect x="510" y="260" width="100" height="50" rx="25" fill="#1e293b"
-                stroke="#38bdf8" stroke-width="2.5" />
-          <text x="560" y="290" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="600">Solving</text>
+          <rect x="590" y="260" width="100" height="50" rx="25" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5" />
+          <text x="640" y="290" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="600">Solving</text>
         </g>
 
         <g class="state-node" id="node-consolidating" data-state="Consolidating" onclick="jumpTo('Consolidating')">
-          <rect x="450" y="390" width="130" height="50" rx="25" fill="#1e293b"
-                stroke="#34d399" stroke-width="2.5" />
-          <text x="515" y="420" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">Consolidating</text>
+          <rect x="530" y="400" width="140" height="50" rx="25" fill="#1e293b" stroke="#34d399" stroke-width="2.5" />
+          <text x="600" y="430" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">Consolidating</text>
         </g>
 
         <g class="state-node" id="node-expanding" data-state="Expanding" onclick="jumpTo('Expanding')">
-          <rect x="170" y="280" width="110" height="50" rx="25" fill="#1e293b"
-                stroke="#f87171" stroke-width="2.5" />
-          <text x="225" y="310" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Expanding</text>
+          <rect x="70" y="270" width="120" height="50" rx="25" fill="#1e293b" stroke="#f87171" stroke-width="2.5" />
+          <text x="130" y="300" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Expanding</text>
         </g>
 
-        <!-- Step counter -->
-        <text x="630" y="500" text-anchor="end" fill="#475569" font-size="11">
-          TLC: 67 states · depth 56
+        <!-- footer -->
+        <text x="770" y="545" text-anchor="end" fill="#475569" font-size="11">
+          TLC Model Checked · 67 distinct states · depth 56 · TypeInvariant ✓ · EventuallyPassExam ✓
         </text>
       </svg>
     </div>
   </div>
 
-  <!-- Info panel -->
+  <!-- ====== INFO PANEL ====== -->
   <div class="info-panel">
+
     <!-- Controls -->
     <div class="panel">
       <div class="panel-title">控制</div>
@@ -328,73 +257,53 @@
         <button class="btn danger" onclick="reset()">重置</button>
         <button class="btn" onclick="toggleAuto()" id="btn-auto">▶ 自动播放</button>
       </div>
-      <div style="margin-top:10px; display:flex; align-items:center; gap:12px;">
+      <div class="speed-row">
         <label class="speed-label">
-          速度 <input type="range" id="speed" min="300" max="3000" value="1200" step="100"
-                 oninput="updateSpeed()" style="width:80px;">
+          速度 <input type="range" id="speed" min="300" max="3000" value="1200" step="100" oninput="updateSpeed()" style="width:80px;">
           <span id="speed-val">1.2s</span>
         </label>
-        <span style="font-size:0.75rem; color:var(--text-dim); margin-left:auto;">
-          步骤 <span id="step-num" style="color:var(--text);">0</span> / <span id="step-total">12</span>
+        <span class="step-counter">
+          步骤 <span id="step-num" style="color:var(--text);">0</span> / <span id="step-total">16</span>
         </span>
       </div>
     </div>
 
-    <!-- Current state description -->
+    <!-- Description -->
     <div class="panel">
-      <div class="panel-title">当前状态</div>
-      <div class="desc" id="desc">点击 <strong>前进</strong> 或 <strong>自动播放</strong> 开始探索认知循环。</div>
+      <div class="panel-title">当前动作</div>
+      <div class="desc" id="desc">点击 <strong>前进</strong> 或 <strong>自动播放</strong> 探索完整的认知循环。<br>也可直接点击图中的状态节点跳转。</div>
     </div>
 
-    <!-- Node mastery bars -->
+    <!-- State Watcher -->
     <div class="panel">
-      <div class="panel-title">节点掌握度 (Mastery)</div>
+      <div class="panel-title">State Watcher <span style="font-weight:400;color:var(--text-dim);">— 当前状态在 67 状态空间中的表示</span></div>
+      <div class="state-watcher" id="state-watcher">
+<span class="header-line">-- 等待开始 --</span>
+      </div>
+    </div>
+
+    <!-- Mastery -->
+    <div class="panel">
+      <div class="panel-title">节点掌握度 (nodeMastery)</div>
       <div class="mastery-row">
         <span class="mastery-label" style="color:var(--knowledge);">K1 知识点</span>
-        <div class="mastery-bar-wrap">
-          <div class="mastery-bar knowledge" id="bar-k1" style="width:0%;"></div>
-          <div class="mastery-threshold"></div>
-        </div>
+        <div class="mastery-bar-wrap"><div class="mastery-bar knowledge" id="bar-k1" style="width:0%;"></div><div class="mastery-threshold"></div></div>
       </div>
       <div class="mastery-row">
         <span class="mastery-label" style="color:var(--knowledge);">K2 知识点</span>
-        <div class="mastery-bar-wrap">
-          <div class="mastery-bar knowledge" id="bar-k2" style="width:0%;"></div>
-          <div class="mastery-threshold"></div>
-        </div>
+        <div class="mastery-bar-wrap"><div class="mastery-bar knowledge" id="bar-k2" style="width:0%;"></div><div class="mastery-threshold"></div></div>
       </div>
       <div class="mastery-row">
         <span class="mastery-label" style="color:var(--pattern);">P1 模式</span>
-        <div class="mastery-bar-wrap">
-          <div class="mastery-bar pattern" id="bar-p1" style="width:0%;"></div>
-          <div class="mastery-threshold"></div>
-        </div>
+        <div class="mastery-bar-wrap"><div class="mastery-bar pattern" id="bar-p1" style="width:0%;"></div><div class="mastery-threshold"></div></div>
       </div>
       <div class="mastery-row">
         <span class="mastery-label" style="color:var(--error);">E1 易错点</span>
-        <div class="mastery-bar-wrap">
-          <div class="mastery-bar error" id="bar-e1" style="width:0%;"></div>
-          <div class="mastery-threshold"></div>
-        </div>
+        <div class="mastery-bar-wrap"><div class="mastery-bar error" id="bar-e1" style="width:0%;"></div><div class="mastery-threshold"></div></div>
       </div>
-      <div style="font-size:0.7rem; color:var(--text-dim); margin-top:6px; display:flex; align-items:center; gap:4px;">
-        K1→P1: <span id="link-k1" style="color:var(--fail);">FALSE</span> &nbsp;|&nbsp;
-        K2→P1: <span id="link-k2" style="color:var(--fail);">FALSE</span>
-      </div>
-    </div>
-
-    <!-- Legend -->
-    <div class="panel">
-      <div class="panel-title">图例</div>
-      <div class="legend">
-        <div class="legend-item"><span class="legend-dot" style="background:var(--knowledge);"></span>Knowledge</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--pattern);"></span>Pattern</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--error);"></span>ErrorPoint</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--idle);"></span>Idle</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--retrieving);"></span>Retrieving</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--solving);"></span>Solving</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--consolidating);"></span>Consolidating</div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--expanding);"></span>Expanding</div>
+      <div class="link-row">
+        treeK2P: &nbsp; K1→P1 = <span id="link-k1" style="color:var(--fail);">FALSE</span> &nbsp;|&nbsp;
+        K2→P1 = <span id="link-k2" style="color:var(--fail);">FALSE</span>
       </div>
     </div>
 
@@ -402,64 +311,105 @@
     <div class="panel">
       <div class="panel-title">执行日志</div>
       <div class="log" id="log">
-        <div class="log-entry idle">
-          <span class="ts">[00]</span>
-          <span class="act">Init</span> — 系统就绪，等待开始
-        </div>
+        <div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪</div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ── trace data: the 13-step path through the full cognitive cycle ──
+// ── trace: 17-step path through the full cognitive cycle ──
 const trace = [
-  { step:0, state:"Idle",          action:"Init",               k1:0,  k2:0,  p1:0,  e1:0,  lk1:false, lk2:false,
-    desc:"系统启动。<strong>Idle</strong> 状态，所有 mastery 为 0，K1/P1/K2/P1 无连接。" },
-  { step:1, state:"Retrieving",    action:"StartRetrieving",    k1:0,  k2:0,  p1:0,  e1:0,  lk1:false, lk2:false,
-    desc:"取出题目 Q1，进入 <strong>Retrieving</strong>。查询 Q1 关联的 Pattern P1。" },
-  { step:2, state:"Expanding",     action:"RetrieveFail",       k1:0,  k2:0,  p1:0,  e1:0,  lk1:false, lk2:false,
-    desc:"<strong>检索失败</strong>！P1 没有任何 Knowledge 连接（relatedK={}）。进入 Expanding 建立连接。" },
-  { step:3, state:"Idle",          action:"ExpandTree",         k1:0,  k2:0,  p1:0,  e1:0,  lk1:true,  lk2:true,
-    desc:"<strong>ExpandTree 建连接</strong>：选择 K1、K2 建立到 P1 的映射。treeK2P[K1][P1]=TRUE, treeK2P[K2][P1]=TRUE。" },
-  { step:4, state:"Retrieving",    action:"StartRetrieving",    k1:0,  k2:0,  p1:0,  e1:0,  lk1:true,  lk2:true,
-    desc:"重新进入 <strong>Retrieving</strong>。现在 relatedK={K1,K2}，但 mastery 全为 0。" },
-  { step:5, state:"Expanding",     action:"RetrieveFail",       k1:0,  k2:0,  p1:0,  e1:0,  lk1:true,  lk2:true,
-    desc:"<strong>检索失败</strong>！虽然 K1、K2 已关联，但 mastery 均未达标（0 < 80）。进入 Expanding 强化。" },
-  { step:6, state:"Idle",          action:"ExpandTree",         k1:30, k2:30, p1:0,  e1:30, lk1:true,  lk2:true,
-    desc:"<strong>ExpandTree 强化</strong>：弱节点 K1、K2、E1 的 mastery +30。<br>┗ K1: 0→30, K2: 0→30, E1: 0→30" },
-  { step:7, state:"Retrieving",    action:"StartRetrieving",    k1:30, k2:30, p1:0,  e1:30, lk1:true,  lk2:true,
-    desc:"再次 <strong>Retrieving</strong>。relatedK={K1,K2}，但 mastery=30 仍低于阈值。" },
-  { step:8, state:"Expanding",     action:"RetrieveFail",       k1:30, k2:30, p1:0,  e1:30, lk1:true,  lk2:true,
+  { s:0, st:"Idle",          act:"Init",               k1:0,  k2:0,  p1:0,  e1:0,  lk1:"FALSE", lk2:"FALSE",
+    desc:"系统启动。<strong>Idle</strong> 状态，所有 mastery 为 0。treeK2P 矩阵全为 FALSE。" },
+  { s:1, st:"Retrieving",    act:"StartRetrieving",    k1:0,  k2:0,  p1:0,  e1:0,  lk1:"FALSE", lk2:"FALSE",
+    desc:"取出题目 Q1，进入 <strong>Retrieving</strong>。调用 GetRelatedNodes(Q1) → targetP=P1, relatedK={}, relatedE={E1}。" },
+  { s:2, st:"Expanding",     act:"RetrieveFail",       k1:0,  k2:0,  p1:0,  e1:0,  lk1:"FALSE", lk2:"FALSE",
+    desc:"<strong>检索失败</strong>！relatedK 为空——P1 尚无任何 Knowledge 连接。进入 Expanding 建立连接。" },
+  { s:3, st:"Idle",          act:"ExpandTree",         k1:0,  k2:0,  p1:0,  e1:0,  lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>ExpandTree（建连接分支）</strong>：选取 K1、K2，建立到 P1 的映射。<br>┗ treeK2P[K1][P1] ← TRUE, treeK2P[K2][P1] ← TRUE" },
+  { s:4, st:"Retrieving",    act:"StartRetrieving",    k1:0,  k2:0,  p1:0,  e1:0,  lk1:"TRUE",  lk2:"TRUE",
+    desc:"重新 <strong>Retrieving</strong>。relatedK={K1,K2}，但 mastery 全部为 0。" },
+  { s:5, st:"Expanding",     act:"RetrieveFail",       k1:0,  k2:0,  p1:0,  e1:0,  lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>检索失败</strong>：K1、K2 已关联，但 mastery 均 < 80。进入 Expanding 强化弱节点。" },
+  { s:6, st:"Idle",          act:"ExpandTree",         k1:30, k2:30, p1:0,  e1:30, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>ExpandTree（强化分支）</strong>：weakK={K1,K2}, weakE={E1}，各 mastery +30。<br>┗ K1: 0→30, K2: 0→30, E1: 0→30" },
+  { s:7, st:"Retrieving",    act:"StartRetrieving",    k1:30, k2:30, p1:0,  e1:30, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>Retrieving</strong>：relatedK={K1,K2}，mastery=30 仍 < 80。" },
+  { s:8, st:"Expanding",     act:"RetrieveFail",       k1:30, k2:30, p1:0,  e1:30, lk1:"TRUE",  lk2:"TRUE",
     desc:"<strong>检索失败</strong>：mastery 30 < 80。" },
-  { step:9, state:"Idle",          action:"ExpandTree",         k1:60, k2:60, p1:0,  e1:60, lk1:true,  lk2:true,
-    desc:"<strong>ExpandTree 强化</strong>：K1、K2、E1 的 mastery +30。<br>┗ K1: 30→60, K2: 30→60, E1: 30→60" },
-  { step:10, state:"Retrieving",   action:"StartRetrieving",    k1:60, k2:60, p1:0,  e1:60, lk1:true,  lk2:true,
-    desc:"再次 <strong>Retrieving</strong>。mastery=60，仍差一步。" },
-  { step:11, state:"Expanding",    action:"RetrieveFail",       k1:60, k2:60, p1:0,  e1:60, lk1:true,  lk2:true,
-    desc:"<strong>检索失败</strong>：mastery 60 < 80。<em>关键：若无公平性约束，系统可在此无限卡住。</em>" },
-  { step:12, state:"Idle",         action:"ExpandTree",         k1:90, k2:90, p1:0,  e1:90, lk1:true,  lk2:true,
-    desc:"<strong>ExpandTree 强化</strong>：K1、K2、E1 的 mastery +30，到达 90 ≥ 80！<br>┗ 全部关联节点已达标，下一次检索将成功。" },
-  { step:13, state:"Retrieving",   action:"StartRetrieving",    k1:90, k2:90, p1:0,  e1:90, lk1:true,  lk2:true,
-    desc:"重新 <strong>Retrieving</strong>。relatedK={K1,K2}，mastery 全部 ≥ 80。" },
-  { step:14, state:"Solving",      action:"RetrieveSuccess",    k1:90, k2:90, p1:0,  e1:90, lk1:true,  lk2:true,
-    desc:"<strong>检索成功</strong>！所有关联 Knowledge 和 ErrorPoint 均达标。进入 Solving 解题。" },
-  { step:15, state:"Consolidating",action:"SolveCorrectly",     k1:90, k2:90, p1:0,  e1:90, lk1:true,  lk2:true,
-    desc:"<strong>答对</strong>！进入 Consolidating 巩固阶段。" },
-  { step:16, state:"Idle",         action:"Consolidate",        k1:100,k2:100,p1:10, e1:100,lk1:true,  lk2:true,
-    desc:"<strong>Consolidate 巩固</strong>：当前 Pattern 及关联节点 mastery +10。<br>┗ K1: 90→100, K2: 90→100, P1: 0→10, E1: 90→100<br><strong>StrongEnough 达成！</strong> 系统持续处于掌握状态。" },
+  { s:9, st:"Idle",          act:"ExpandTree",         k1:60, k2:60, p1:0,  e1:60, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>ExpandTree 强化</strong>：weakK={K1,K2}, weakE={E1}，mastery +30。<br>┗ K1: 30→60, K2: 30→60, E1: 30→60" },
+  { s:10, st:"Retrieving",   act:"StartRetrieving",    k1:60, k2:60, p1:0,  e1:60, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>Retrieving</strong>：mastery=60，距阈值 80 还差一步。" },
+  { s:11, st:"Expanding",    act:"RetrieveFail",       k1:60, k2:60, p1:0,  e1:60, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>检索失败</strong>：mastery 60 < 80。<em>若无公平性约束，系统可在此无限 stuttering。</em>" },
+  { s:12, st:"Idle",         act:"ExpandTree",         k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>ExpandTree 强化</strong>：K1、K2、E1 mastery +30 → 90 ≥ 80！<br>┗ 所有关联节点达标，下一次 RetrieveSuccess 将触发。" },
+  { s:13, st:"Retrieving",   act:"StartRetrieving",    k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>Retrieving</strong>：relatedK={K1,K2}，全部 mastery ≥ 80。" },
+  { s:14, st:"Solving",      act:"RetrieveSuccess",    k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>检索成功</strong>！所有节点达标，进入 Solving 解题。" },
+  { s:15, st:"Consolidating",act:"SolveCorrectly",     k1:90, k2:90, p1:0,  e1:90, lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>答对</strong>！进入 Consolidating 巩固。" },
+  { s:16, st:"Idle",         act:"Consolidate",        k1:100,k2:100,p1:10, e1:100,lk1:"TRUE",  lk2:"TRUE",
+    desc:"<strong>Consolidate 巩固</strong>：所有关联节点 mastery +10。<br>┗ K1: 90→100, K2: 90→100, P1: 0→10, E1: 90→100<br><strong>✅ StrongEnough 达成！系统持续处于掌握状态。</strong>" },
 ];
 
+// state fingerprint: simple deterministic hash mapped into [1,67]
+// based on (learnerState, treeK2P bits, mastery vector, question)
+function stateFingerprint(t) {
+  let h = 0;
+  const stIdx = ["Idle","Retrieving","Solving","Consolidating","Expanding"].indexOf(t.st);
+  h = stIdx * 100000;
+  h += (t.lk1 === "TRUE" ? 1 : 0) * 10000;
+  h += (t.lk2 === "TRUE" ? 1 : 0) * 5000;
+  h += t.k1 * 100 + t.k2 * 10 + t.p1 * 5 + t.e1 * 1;
+  // map to 1..67 using multiplicative hash
+  const prime = 67;
+  return ((h * 2654435761) >>> 0) % prime + 1;
+}
+
+function stateWatcherHTML(t, fp) {
+  const stIdx = ["Idle","Retrieving","Solving","Consolidating","Expanding"].indexOf(t.st);
+  // build a TLA+-like representation
+  const lines = [
+    `<span class="header-line">── 状态空间 #${fp} / 67 ──────────────────────</span>`,
+    ``,
+    `<span class="kw">learnerState</span> <span class="eq">=</span> <span class="str">"${t.st}"</span>  <span class="header-line">-- state #${stIdx+1}/5</span>`,
+    ``,
+    `<span class="kw">treeK2P</span> <span class="eq">=</span> [`,
+    `  K1 |-> [P1 |-> <span class="bool">${t.lk1}</span>],`,
+    `  K2 |-> [P1 |-> <span class="bool">${t.lk2}</span>]`,
+    `]`,
+    ``,
+    `<span class="kw">nodeMastery</span> <span class="eq">=</span> [`,
+    `  K1 |-> <span class="num">${String(t.k1).padStart(3,' ')}</span>, K2 |-> <span class="num">${String(t.k2).padStart(3,' ')}</span>,`,
+    `  P1 |-> <span class="num">${String(t.p1).padStart(3,' ')}</span>, E1 |-> <span class="num">${String(t.e1).padStart(3,' ')}</span>`,
+    `]`,
+    ``,
+    `<span class="kw">currentQuestion</span> <span class="eq">=</span> <span class="str">"q1"</span>`,
+    ``,
+    `<span class="header-line">── StrongEnough:</span> <span class="${(t.k1>=80 && t.k2>=80 && t.e1>=80 && t.lk1==='TRUE' && t.lk2==='TRUE') ? 'str' : 'fail'}" style="font-weight:600;">${(t.k1>=80 && t.k2>=80 && t.e1>=80 && t.lk1==='TRUE' && t.lk2==='TRUE') ? 'TRUE ✓' : 'FALSE'}</span>`,
+  ];
+  return lines.join('\n');
+}
+
+// ── state ──
 let stepIdx = 0;
 let autoTimer = null;
 let speed = 1200;
 
 const stateColors = {
-  Idle:          { stroke: '#a78bfa', glow: '#a78bfa' },
-  Retrieving:    { stroke: '#fbbf24', glow: '#fbbf24' },
-  Solving:       { stroke: '#38bdf8', glow: '#38bdf8' },
-  Consolidating: { stroke: '#34d399', glow: '#34d399' },
-  Expanding:     { stroke: '#f87171', glow: '#f87171' },
+  Idle:          '#a78bfa',
+  Retrieving:    '#fbbf24',
+  Solving:       '#38bdf8',
+  Consolidating: '#34d399',
+  Expanding:     '#f87171',
+};
+const markerMap = {
+  RetrieveSuccess: 'arr-succ', SolveCorrectly: 'arr-succ', Consolidate: 'arr-succ',
+  RetrieveFail: 'arr-fail', SolveIncorrectly: 'arr-fail',
 };
 
 function applyStep(i) {
@@ -467,22 +417,22 @@ function applyStep(i) {
   stepIdx = i;
   document.getElementById('step-num').textContent = i;
 
-  // highlight state node
+  // update state nodes
   document.querySelectorAll('.state-node').forEach(el => {
     el.classList.remove('active');
     const r = el.querySelector('rect');
     r.setAttribute('fill', '#1e293b');
-    r.setAttribute('stroke', stateColors[el.dataset.state]?.stroke || '#64748b');
+    r.setAttribute('stroke', stateColors[el.dataset.state] || '#64748b');
     r.setAttribute('stroke-width', '2.5');
     r.removeAttribute('filter');
   });
-  const node = document.getElementById('node-' + t.state.toLowerCase());
+  const node = document.getElementById('node-' + t.st.toLowerCase());
   if (node) {
     node.classList.add('active');
     const r = node.querySelector('rect');
     r.setAttribute('fill', '#1e293b');
-    r.setAttribute('stroke', stateColors[t.state].glow);
-    r.setAttribute('stroke-width', '3');
+    r.setAttribute('stroke', stateColors[t.st]);
+    r.setAttribute('stroke-width', '3.5');
     r.setAttribute('filter', 'url(#glow)');
   }
 
@@ -490,65 +440,64 @@ function applyStep(i) {
   document.querySelectorAll('.transition-path').forEach(p => {
     p.classList.remove('highlight');
     p.setAttribute('stroke', '#64748b');
-    p.setAttribute('stroke-width', p.id.includes('expa2') ? '1.5' : '2');
-    p.setAttribute('stroke-dasharray', p.id.includes('expa2') ? '6,3' : 'none');
-    p.setAttribute('marker-end', 'url(#arrow)');
+    p.setAttribute('stroke-width', p.id.includes('expa2') ? '2' : '2.5');
+    p.setAttribute('stroke-dasharray', p.id.includes('expa2') ? '7,4' : 'none');
+    p.setAttribute('marker-end', 'url(#arr-def)');
   });
-  const prev = i > 0 ? trace[i-1] : null;
-  if (prev) {
-    const trId = transitionId(prev.state, t.state);
+  if (i > 0) {
+    const prev = trace[i-1];
+    const trId = transitionId(prev.st, t.st);
     if (trId) {
       const el = document.getElementById(trId);
       if (el) {
         el.classList.add('highlight');
-        el.setAttribute('stroke', stateColors[t.state].glow);
-        el.setAttribute('stroke-width', '3');
+        el.setAttribute('stroke', stateColors[t.st]);
+        el.setAttribute('stroke-width', '3.5');
         el.setAttribute('stroke-dasharray', 'none');
-        el.setAttribute('marker-end', 'url(#arrow-hl)');
+        const m = markerMap[t.act] || 'arr-hl';
+        el.setAttribute('marker-end', 'url(#' + m + ')');
       }
     }
   }
 
   // mastery bars
-  setBar('bar-k1', t.k1, '#60a5fa');
-  setBar('bar-k2', t.k2, '#60a5fa');
-  setBar('bar-p1', t.p1, '#c084fc');
-  setBar('bar-e1', t.e1, '#fb7185');
-
-  // links
-  const lk1 = document.getElementById('link-k1');
-  const lk2 = document.getElementById('link-k2');
-  lk1.textContent = t.lk1 ? 'TRUE' : 'FALSE';
-  lk1.style.color = t.lk1 ? 'var(--success)' : 'var(--fail)';
-  lk2.textContent = t.lk2 ? 'TRUE' : 'FALSE';
-  lk2.style.color = t.lk2 ? 'var(--success)' : 'var(--fail)';
+  setBar('bar-k1', t.k1); setBar('bar-k2', t.k2);
+  setBar('bar-p1', t.p1); setBar('bar-e1', t.e1);
+  document.getElementById('link-k1').textContent = t.lk1;
+  document.getElementById('link-k1').style.color = t.lk1 === 'TRUE' ? 'var(--success)' : 'var(--fail)';
+  document.getElementById('link-k2').textContent = t.lk2;
+  document.getElementById('link-k2').style.color = t.lk2 === 'TRUE' ? 'var(--success)' : 'var(--fail)';
 
   // description
   document.getElementById('desc').innerHTML = t.desc;
 
+  // state watcher
+  const fp = stateFingerprint(t);
+  document.getElementById('state-watcher').innerHTML = stateWatcherHTML(t, fp);
+
   // log
   const log = document.getElementById('log');
-  if (i > 0 && i < trace.length) {
-    const cls = t.action.includes('Fail') || t.action.includes('Incorrectly') ? 'fail'
-              : t.action.includes('Success') || t.action.includes('Correctly') ? 'succ'
-              : 'idle';
+  if (i > 0 && i <= trace.length) {
+    const cls = t.act.includes('Fail') || t.act.includes('Incorrectly') ? 'fail'
+              : t.act.includes('Success') || t.act.includes('Correctly') || t.act === 'Consolidate' ? 'succ' : 'idle';
     const div = document.createElement('div');
     div.className = 'log-entry ' + cls;
-    div.innerHTML = `<span class="ts">[${String(i).padStart(2,'0')}]</span><span class="act">${t.action}</span> — ${stripHtml(t.desc).slice(0,60)}...`;
+    div.innerHTML = `<span class="ts">[${String(i).padStart(2,'0')}]</span><span class="act">${t.act}</span> — ${stripHtml(t.desc).slice(0,50)}...`;
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
   }
 
-  // button state
+  // buttons
   document.getElementById('btn-back').disabled = (i === 0);
-  document.getElementById('btn-step').textContent = i >= trace.length-1 ? '✓ 完成' : '前进 ▶';
-  document.getElementById('btn-step').disabled = i >= trace.length-1;
+  const done = i >= trace.length-1;
+  document.getElementById('btn-step').textContent = done ? '✓ 完成' : '前进 ▶';
+  document.getElementById('btn-step').disabled = done;
 }
 
-function setBar(id, val, color) {
+function setBar(id, val) {
   const el = document.getElementById(id);
   el.style.width = val + '%';
-  el.style.background = val >= 80 ? 'var(--success)' : color;
+  el.style.background = val >= 80 ? 'var(--success)' : '';
   el.textContent = val > 0 ? val : '';
 }
 
@@ -567,54 +516,43 @@ function transitionId(from, to) {
 
 function stripHtml(s) { return s.replace(/<[^>]*>/g, ''); }
 
-function step() {
-  if (stepIdx < trace.length - 1) applyStep(stepIdx + 1);
-}
+function step() { if (stepIdx < trace.length-1) applyStep(stepIdx+1); }
 
 function stepBack() {
   if (stepIdx > 0) {
-    // rebuild log
     const log = document.getElementById('log');
-    log.innerHTML = '<div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪，等待开始</div>';
-    for (let i = 1; i < stepIdx; i++) {
-      const t = trace[i];
-      const cls = t.action.includes('Fail') || t.action.includes('Incorrectly') ? 'fail'
-                : t.action.includes('Success') || t.action.includes('Correctly') ? 'succ' : 'idle';
+    log.innerHTML = '<div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪</div>';
+    for (let j=1; j<stepIdx; j++) {
+      const t = trace[j];
+      const cls = t.act.includes('Fail') || t.act.includes('Incorrectly') ? 'fail'
+                : t.act.includes('Success') || t.act.includes('Correctly') || t.act==='Consolidate' ? 'succ' : 'idle';
       const div = document.createElement('div');
-      div.className = 'log-entry ' + cls;
-      div.innerHTML = `<span class="ts">[${String(i).padStart(2,'0')}]</span><span class="act">${t.action}</span> — ${stripHtml(t.desc).slice(0,60)}...`;
+      div.className = 'log-entry '+cls;
+      div.innerHTML = `<span class="ts">[${String(j).padStart(2,'0')}]</span><span class="act">${t.act}</span> — ${stripHtml(t.desc).slice(0,50)}...`;
       log.appendChild(div);
     }
     log.scrollTop = log.scrollHeight;
-    applyStep(stepIdx - 1);
+    applyStep(stepIdx-1);
   }
 }
 
 function jumpTo(state) {
-  // find the last trace entry with this state at or after current position
-  for (let i = stepIdx; i < trace.length; i++) {
-    if (trace[i].state === state) { applyStep(i); return; }
-  }
-  // wrap: search from beginning
-  for (let i = 0; i < stepIdx; i++) {
-    if (trace[i].state === state) { applyStep(i); return; }
-  }
+  for (let j=stepIdx; j<trace.length; j++) { if (trace[j].st===state) { applyStep(j); return; } }
+  for (let j=0; j<stepIdx; j++) { if (trace[j].st===state) { applyStep(j); return; } }
 }
 
 function reset() {
   stopAuto();
   const log = document.getElementById('log');
-  log.innerHTML = '<div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪，等待开始</div>';
+  log.innerHTML = '<div class="log-entry idle"><span class="ts">[00]</span><span class="act">Init</span> — 系统就绪</div>';
   applyStep(0);
   document.querySelectorAll('.transition-path').forEach(p => {
     p.classList.remove('highlight');
     p.setAttribute('stroke', '#64748b');
-    p.setAttribute('stroke-width', p.id.includes('expa2') ? '1.5' : '2');
-    p.setAttribute('stroke-dasharray', p.id.includes('expa2') ? '6,3' : 'none');
-    p.setAttribute('marker-end', 'url(#arrow)');
+    p.setAttribute('stroke-width', p.id.includes('expa2')?'2':'2.5');
+    p.setAttribute('stroke-dasharray', p.id.includes('expa2')?'7,4':'none');
+    p.setAttribute('marker-end', 'url(#arr-def)');
   });
-  document.getElementById('btn-step').textContent = '前进 ▶';
-  document.getElementById('btn-step').disabled = false;
 }
 
 function toggleAuto() {
@@ -623,30 +561,21 @@ function toggleAuto() {
   document.getElementById('btn-auto').classList.add('primary');
   advanceAuto();
 }
-
 function stopAuto() {
-  if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+  if (autoTimer) { clearTimeout(autoTimer); autoTimer=null; }
   document.getElementById('btn-auto').textContent = '▶ 自动播放';
   document.getElementById('btn-auto').classList.remove('primary');
 }
-
 function advanceAuto() {
-  if (stepIdx < trace.length - 1) {
-    applyStep(stepIdx + 1);
-    autoTimer = setTimeout(advanceAuto, speed);
-  } else {
-    stopAuto();
-  }
+  if (stepIdx < trace.length-1) { applyStep(stepIdx+1); autoTimer = setTimeout(advanceAuto, speed); }
+  else stopAuto();
 }
-
 function updateSpeed() {
   speed = parseInt(document.getElementById('speed').value);
-  document.getElementById('speed-val').textContent = (speed / 1000).toFixed(1) + 's';
+  document.getElementById('speed-val').textContent = (speed/1000).toFixed(1)+'s';
 }
 
-document.getElementById('step-total').textContent = trace.length - 1;
-
-// init
+document.getElementById('step-total').textContent = trace.length-1;
 applyStep(0);
 </script>
 </body>

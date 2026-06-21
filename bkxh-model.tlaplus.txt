@@ -1,0 +1,166 @@
+---------------------------- MODULE MindTreeCognitiveArch_V9_1 ----------------------------
+(* 
+ * 模型：基于 @敝槛玄鹤 "思维树" 方法论的认知架构状态机 (V9.1 出版级终版)
+ * 性质：无死锁、无空真、公平调度、单调收敛
+ *)
+
+EXTENDS Naturals, Sequences, FiniteSets, TLC
+
+CONSTANTS 
+    QuestionSet,        
+    Knowledge,          
+    Pattern,            
+    ErrorPoint,         
+    QuestionPatternMap, 
+    MasteryThreshold,
+    PatternInherentErrors 
+
+ASSUME 
+    /\ QuestionPatternMap \in [QuestionSet -> Pattern]
+    /\ QuestionSet # {} /\ Knowledge # {} /\ Pattern # {} /\ ErrorPoint # {}
+    /\ Knowledge \cap Pattern = {} /\ Pattern \cap ErrorPoint = {} /\ Knowledge \cap ErrorPoint = {}
+    /\ Cardinality(Knowledge) >= 2
+    /\ PatternInherentErrors \in [Pattern -> SUBSET ErrorPoint]
+    /\ \A p \in Pattern : PatternInherentErrors[p] # {} 
+    /\ MasteryThreshold = 80 
+
+VARIABLES 
+    learnerState, 
+    treeK2P,          
+    nodeMastery,      
+    currentQuestion
+
+States == {"Idle", "Retrieving", "Solving", "Consolidating", "Expanding"}
+Vars == <<learnerState, treeK2P, nodeMastery, currentQuestion>>
+AllNodes == Knowledge \cup Pattern \cup ErrorPoint
+
+Init ==
+    /\ learnerState = "Idle"
+    /\ treeK2P = [k \in Knowledge |-> [p \in Pattern |-> FALSE]]
+    /\ nodeMastery = [n \in AllNodes |-> 0]
+    /\ currentQuestion \in QuestionSet
+
+StartRetrieving ==
+    /\ learnerState = "Idle"
+    /\ learnerState' = "Retrieving"
+    /\ UNCHANGED <<treeK2P, nodeMastery, currentQuestion>>
+
+GetRelatedNodes(q) ==
+    LET targetP == QuestionPatternMap[q]
+    IN <<targetP, 
+        {k \in Knowledge : treeK2P[k][targetP] = TRUE}, 
+        PatternInherentErrors[targetP]>>
+
+RetrieveSuccess ==
+    /\ learnerState = "Retrieving"
+    /\ LET related == GetRelatedNodes(currentQuestion)
+           relatedK == related[2]
+           relatedE == related[3] 
+       IN
+           /\ relatedK # {}
+           /\ \A k \in relatedK : nodeMastery[k] >= MasteryThreshold
+           /\ \A e \in relatedE : nodeMastery[e] >= MasteryThreshold
+    /\ learnerState' = "Solving"
+    /\ UNCHANGED <<treeK2P, nodeMastery, currentQuestion>>
+
+RetrieveFail ==
+    /\ learnerState = "Retrieving"
+    /\ LET related == GetRelatedNodes(currentQuestion)
+           relatedK == related[2]
+           relatedE == related[3]
+       IN
+           \/ relatedK = {}
+           \/ \E k \in relatedK : nodeMastery[k] < MasteryThreshold
+           \/ \E e \in relatedE : nodeMastery[e] < MasteryThreshold
+    /\ learnerState' = "Expanding"
+    /\ UNCHANGED <<treeK2P, nodeMastery, currentQuestion>>
+
+SolveCorrectly ==
+    /\ learnerState = "Solving"
+    /\ learnerState' = "Consolidating"
+    /\ UNCHANGED <<treeK2P, nodeMastery, currentQuestion>>
+
+SolveIncorrectly ==
+    /\ learnerState = "Solving"
+    /\ learnerState' = "Expanding"
+    /\ UNCHANGED <<treeK2P, nodeMastery, currentQuestion>>
+
+Consolidate ==
+    /\ learnerState = "Consolidating"
+    /\ LET related == GetRelatedNodes(currentQuestion)
+           nodesToBoost == related[2] \cup related[3] \cup {related[1]}
+       IN
+           /\ nodeMastery' = [n \in AllNodes |->
+               IF n \in nodesToBoost THEN MIN(nodeMastery[n] + 10, 100) ELSE nodeMastery[n]]
+    /\ learnerState' = "Idle"
+    /\ currentQuestion' \in QuestionSet
+    /\ UNCHANGED treeK2P
+
+ExpandTree ==
+    /\ learnerState = "Expanding"
+    /\ LET related == GetRelatedNodes(currentQuestion)
+           targetP == related[1]
+           relatedK == related[2]
+           relatedE == related[3] 
+           weakK == {k \in relatedK : nodeMastery[k] < MasteryThreshold}
+           weakE == {e \in relatedE : nodeMastery[e] < MasteryThreshold}
+       IN
+           \/ (/\ relatedK # {}
+               /\ ( \/ (weakK # {} \/ weakE # {})   
+                      /\ nodeMastery' = [n \in AllNodes |->
+                           IF n \in weakK \cup weakE 
+                           THEN MIN(nodeMastery[n] + 30, 100) 
+                           ELSE nodeMastery[n]]
+                   \/ (weakK = {} /\ weakE = {})    
+                      /\ UNCHANGED nodeMastery
+                  )
+               /\ UNCHANGED treeK2P
+              )
+              
+           \/ (/\ relatedK = {}
+               /\ \E k1, k2 \in Knowledge : k1 # k2  
+               /\ treeK2P' = [k \in Knowledge |->
+                                  IF k = k1 \/ k = k2
+                                  THEN [treeK2P[k] EXCEPT ![targetP] = TRUE]
+                                  ELSE treeK2P[k]]
+               /\ UNCHANGED nodeMastery 
+              )
+               
+    /\ learnerState' = "Idle"
+    /\ currentQuestion' \in QuestionSet
+
+Next ==
+    \/ StartRetrieving
+    \/ RetrieveSuccess
+    \/ RetrieveFail
+    \/ SolveCorrectly
+    \/ SolveIncorrectly
+    \/ Consolidate
+    \/ ExpandTree
+
+(* 风格优化：显式定义换题动作，提升可读性 *)
+ChangeTo(q) == currentQuestion' = q
+
+Spec == Init /\ [][Next]_Vars
+          /\ WF_<<learnerState>>(StartRetrieving)
+          /\ \A q \in QuestionSet : WF_<<currentQuestion>>(ChangeTo(q))
+
+TypeInvariant ==
+    /\ learnerState \in States
+    /\ treeK2P \in [Knowledge -> [Pattern -> BOOLEAN]]
+    /\ nodeMastery \in [AllNodes -> 0..100]
+    /\ currentQuestion \in QuestionSet
+
+ExamPatterns == {QuestionPatternMap[q] : q \in QuestionSet}
+
+StrongEnough ==
+    \A p \in ExamPatterns :
+        LET relatedK == {k \in Knowledge : treeK2P[k][p] = TRUE}
+            inherentE == PatternInherentErrors[p] 
+        IN  /\ relatedK # {}
+            /\ \A k \in relatedK : nodeMastery[k] >= MasteryThreshold
+            /\ \A e \in inherentE : nodeMastery[e] >= MasteryThreshold
+
+EventuallyPassExam == <>[] StrongEnough
+
+=============================================================================

@@ -11,3 +11,7 @@ states/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Misc / external tools
+cloudflared.exe
+*.bak.txt
